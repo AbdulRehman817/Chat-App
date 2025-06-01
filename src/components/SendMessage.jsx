@@ -257,7 +257,7 @@ const Messages = () => {
                         originX: "100%",
                         originY: "0%",
                       }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
                     >
                       <button
                         onClick={() => deleteForMe(msg.id)}
@@ -319,7 +319,7 @@ const Messages = () => {
                       originX: "100%",
                       originY: "0%",
                     }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
                   >
                     <EmojiPicker
                       onEmojiClick={(emojiData) =>
