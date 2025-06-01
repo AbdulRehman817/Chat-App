@@ -244,9 +244,19 @@ const Messages = () => {
                     <motion.div
                       className="menu-popup absolute top-10 right-2 z-50 bg-[#233138] shadow-lg rounded-xl overflow-hidden text-sm ring-1 ring-white/10"
                       onClick={(e) => e.stopPropagation()}
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{
+                        opacity: 0,
+                        scale: 0.9,
+                        originX: "100%",
+                        originY: "0%",
+                      }}
                       animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.9,
+                        originX: "100%",
+                        originY: "0%",
+                      }}
                       transition={{ duration: 0.2 }}
                     >
                       <button
@@ -296,9 +306,19 @@ const Messages = () => {
                   <motion.div
                     className="absolute top-10 right-12 z-50 bg-[#f0f0f0] border border-gray-300 rounded-lg shadow-sm p-1"
                     onClick={(e) => e.stopPropagation()}
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{
+                      opacity: 0,
+                      scale: 0.9,
+                      originX: "100%",
+                      originY: "0%",
+                    }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.9,
+                      originX: "100%",
+                      originY: "0%",
+                    }}
                     transition={{ duration: 0.2 }}
                   >
                     <EmojiPicker
