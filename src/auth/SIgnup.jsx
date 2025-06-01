@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, googleProvider, db } from "../firebase/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
@@ -7,12 +7,20 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate("/ChatPage");
+    }
+  }, [currentUser, navigate]);
 
   const handleSignup = async () => {
     try {
@@ -23,18 +31,17 @@ const Signup = () => {
       );
       const user = userCredential.user;
 
-      // ✅ Update profile with name
       await updateProfile(user, {
         displayName: name,
         photoURL: `https://ui-avatars.com/api/?name=${name}&background=random`,
       });
 
-      // ✅ Save to Firestore
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         email: user.email,
         displayName: name,
         photoURL: user.photoURL,
+        online: true,
       });
 
       navigate("/ChatPage");
@@ -58,39 +65,40 @@ const Signup = () => {
           email: user.email,
           displayName: user.displayName,
           photoURL: user.photoURL,
+          online: true,
         });
       }
 
-      navigate("/");
-      alert("Signed in with Google!");
+      navigate("/ChatPage");
+      alert("Signed up with Google!");
     } catch (error) {
       alert(error.message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-100 to-white">
-      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-pink-600 mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-100 to-white dark:from-gray-900 dark:to-black transition-colors duration-700">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl w-full max-w-md transform transition-all duration-700 scale-95 hover:scale-100">
+        <h2 className="text-3xl font-bold text-center text-[#25D366] dark:text-[#25D366] mb-6">
           Create Account
         </h2>
 
         <input
-          className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="w-full p-3 mb-4 border border-[#25D366] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#25D366] bg-white dark:bg-gray-700 dark:text-white"
           type="text"
           placeholder="Full Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <input
-          className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="w-full p-3 mb-4 border border-[#25D366] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#25D366] bg-white dark:bg-gray-700 dark:text-white"
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          className="w-full p-3 mb-6 border rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-400"
+          className="w-full p-3 mb-6 border border-[#25D366] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#25D366] bg-white dark:bg-gray-700 dark:text-white"
           type="password"
           placeholder="Password"
           value={password}
@@ -98,18 +106,18 @@ const Signup = () => {
         />
 
         <button
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white py-3 rounded-lg font-semibold transition"
+          className="w-full bg-[#25D366] hover:bg-[#20c155] text-white py-3 rounded-lg font-semibold transition"
           onClick={handleSignup}
         >
           Sign Up
         </button>
 
-        <div className="flex items-center justify-center my-4 text-gray-500">
+        <div className="flex items-center justify-center my-4 text-gray-500 dark:text-gray-300">
           <span className="mx-2">or</span>
         </div>
 
         <button
-          className="w-full bg-white border hover:bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition"
+          className="w-full bg-white dark:bg-gray-700 dark:border-gray-600 border hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition"
           onClick={handleGoogleSignup}
         >
           <img
