@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth, db } from "../firebase/firebaseConfig";
+import { auth, db, rtdb } from "../firebase/firebaseConfig"; // Ensure rtdb is imported
 import { doc, updateDoc } from "firebase/firestore";
+import { ref, set } from "firebase/database"; // Import ref and set from Realtime Database
 
 const AuthContext = createContext();
 
@@ -25,11 +26,15 @@ export const AuthProvider = ({ children }) => {
     return () => unsub();
   }, []);
 
+  // This is the useEffect hook you should have in your AuthProvider
   useEffect(() => {
     const handleBeforeUnload = async () => {
       if (auth.currentUser) {
         const userRef = doc(db, "users", auth.currentUser.uid);
         await updateDoc(userRef, { online: false });
+        // Also set status to false in Realtime Database on unload
+        const userRtdbRef = ref(rtdb, "users/" + auth.currentUser.uid);
+        await set(userRtdbRef, false);
       }
     };
 
@@ -41,6 +46,9 @@ export const AuthProvider = ({ children }) => {
     if (auth.currentUser) {
       const userRef = doc(db, "users", auth.currentUser.uid);
       await updateDoc(userRef, { online: false });
+      // Set status to false in Realtime Database on logout
+      const userRtdbRef = ref(rtdb, "users/" + auth.currentUser.uid);
+      await set(userRtdbRef, false);
       await signOut(auth);
     }
   };
