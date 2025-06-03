@@ -90,7 +90,7 @@ import { collection, query, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import UserCard from "./UserCard";
-import ProfilePopup from "./profilePop";
+import ProfilePopup from "./ProfilePopup";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
