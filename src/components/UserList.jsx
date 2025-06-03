@@ -101,7 +101,6 @@ const UsersList = () => {
   useEffect(() => {
     if (!currentUser) return;
 
-    // Fetch all users
     const q = query(collection(db, "users"));
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {
