@@ -1,14 +1,8 @@
-import React from "react";
-import "./TypingIndicator.css"; // For styling and animation
-
 const TypingIndicator = () => {
   return (
-    <div className="typing-indicator">
-      <span className="dot" style={{ animationDelay: "0ms" }}></span>
-      <span className="dot" style={{ animationDelay: "150ms" }}></span>
-      <span className="dot" style={{ animationDelay: "300ms" }}></span>
+    <div className="text-sm text-black px-4 py-1 bg-gray-100 border-t">
+      Typing...
     </div>
   );
 };
-
 export default TypingIndicator;

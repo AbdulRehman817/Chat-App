@@ -65,16 +65,24 @@ const MessageInput = () => {
   const typingRef = ref(rtdb, `typingStatus/${combinedId}/${currentUser.uid}`);
 
   const handleTyping = (e) => {
-    setMessage(e.target.value);
+    const value = e.target.value;
+    setMessage(value);
 
-    if (e.target.value !== "") {
-      set(typingRef, true);
-      typingTimeout.current = setTimeout(() => {
-        // Trigger typing stop after timeout (optional real-time logic)
-        set(typingRef, false);
-      }, 2000);
-    } else {
+    // Set typing true
+    set(typingRef, true);
+
+    // Clear any existing timeout
+    if (typingTimeout.current) clearTimeout(typingTimeout.current);
+
+    // Set timeout to stop typing
+    typingTimeout.current = setTimeout(() => {
       set(typingRef, false);
+    }, 2000);
+
+    // Optional: Stop typing immediately if input cleared
+    if (value.trim() === "") {
+      set(typingRef, false);
+      clearTimeout(typingTimeout.current);
     }
   };
 
@@ -195,7 +203,7 @@ const MessageInput = () => {
           <button
             type="button"
             onClick={() => fileInputRef.current.click()}
-            className="relative left-0 sm:left-0   text-gray-300 hover:text-white z-10"
+            className="text-gray-300 hover:text-white z-10"
             title="Attach File"
           >
             <Paperclip size={20} />

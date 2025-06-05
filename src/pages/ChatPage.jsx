@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { onValue, ref } from "firebase/database";
 import UsersList from "../components/UserList";
 import SendMessage from "../components/SendMessage";
 import MessageInput from "../components/MessageInput";
@@ -7,55 +6,54 @@ import Header from "../components/Header";
 import TypingIndicator from "../TypingIndicator/TypingIndicator";
 import { useAuth } from "../context/AuthContext";
 import { useChat } from "../context/ChatContext";
-import { rtdb } from "../firebase/firebaseConfig";
 
 const ChatPage = () => {
-  const { selectedUser, setSelectedUser } = useChat();
   const { currentUser } = useAuth();
+  const { selectedUser } = useChat();
   const [isTyping, setIsTyping] = useState(false);
 
-  const chatId =
-    selectedUser && currentUser
-      ? currentUser.uid > selectedUser.uid
-        ? currentUser.uid + selectedUser.uid
-        : selectedUser.uid + currentUser.uid
-      : null;
+  // Track if screen is mobile-sized
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
-  // Handle typing status
-  useEffect(() => {
-    if (!selectedUser || !currentUser) return;
+  // Control if sidebar is open (on mobile)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-    const typingRef = ref(rtdb, `typingStatus/${chatId}/${selectedUser.uid}`);
-    const unsubscribe = onValue(typingRef, (snapshot) => {
-      const typing = snapshot.val();
-      setIsTyping(typing === true);
-    });
-
-    return () => unsubscribe();
-  }, [selectedUser, currentUser, chatId]);
-
-  // Automatically close chat view on small screens when resizing
+  // Update isMobile on window resize
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024 && selectedUser) {
-        setSelectedUser(null);
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+
+      // Automatically close sidebar on mobile when a chat is selected
+      if (mobile && selectedUser) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
       }
     };
 
     window.addEventListener("resize", handleResize);
+    handleResize(); // Initialize on mount
+
     return () => window.removeEventListener("resize", handleResize);
-  }, [selectedUser, setSelectedUser]);
+  }, [selectedUser]);
+
+  // Whenever selectedUser changes on mobile, close sidebar
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(selectedUser ? false : true);
+    }
+  }, [selectedUser, isMobile]);
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
       <div
         className={`
-          border-r border-gray-300 bg-white
-          fixed top-0 left-0 bottom-0 z-30
-          w-full max-w-xs
+          fixed top-0 left-0 bottom-0 z-40
+          w-full max-w-xs h-screen bg-white border-r border-gray-300
           transform transition-transform duration-300 ease-in-out
-          ${selectedUser ? "-translate-x-full" : "translate-x-0"}
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           md:relative md:translate-x-0 md:w-1/3 lg:w-1/4 xl:w-1/5 2xl:w-1/6
           overflow-y-auto
         `}
@@ -63,11 +61,11 @@ const ChatPage = () => {
         <UsersList />
       </div>
 
-      {/* Overlay on mobile when chat open */}
-      {selectedUser && (
+      {/* Overlay for mobile when sidebar is open */}
+      {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 bg-opacity-50 z-20 md:hidden"
-          onClick={() => setSelectedUser(null)}
+          className="fixed inset-0 bg-black bg-opacity-40 z-30"
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
@@ -77,23 +75,31 @@ const ChatPage = () => {
           flex flex-col flex-1 bg-white w-full
           transition-transform duration-300 ease-in-out
           ${
-            selectedUser ? "translate-x-0" : "translate-x-full md:translate-x-0"
+            isMobile
+              ? sidebarOpen
+                ? "translate-x-full"
+                : "translate-x-0"
+              : "translate-x-0"
           }
         `}
       >
         {selectedUser ? (
           <>
-            {/* Back button on mobile */}
+            {/* Header with Back Button on mobile */}
             <Header
               user={selectedUser}
-              showBackButton={true}
-              onBack={() => setSelectedUser(null)}
+              showBackButton={isMobile}
+              onBack={() => {
+                setSelectedUser(null);
+                if (isMobile) setSidebarOpen(true);
+              }}
             />
 
             <div className="flex flex-col flex-1 overflow-hidden">
               <SendMessage />
-              {isTyping && <TypingIndicator />}
-              <MessageInput chatId={chatId} selectedUser={selectedUser} />
+              {/* Include your typing indicator here */}
+              {isTyping && <TypingIndicator user={selectedUser} />}
+              <MessageInput />
             </div>
           </>
         ) : (
