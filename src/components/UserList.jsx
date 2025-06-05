@@ -3,7 +3,7 @@
 // import { db } from "../firebase/firebaseConfig";
 // import { useAuth } from "../context/AuthContext";
 // import UserCard from "./UserCard";
-// import ProfilePopup from "./profilePop";
+// import ProfilePopup from "./ProfilePopup";
 
 // const UsersList = () => {
 //   const [users, setUsers] = useState([]);
@@ -14,7 +14,6 @@
 //   useEffect(() => {
 //     if (!currentUser) return;
 
-//     // Fetch all users
 //     const q = query(collection(db, "users"));
 
 //     const unsubscribe = onSnapshot(q, async (snapshot) => {
@@ -105,7 +104,7 @@ const UsersList = () => {
 
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const usersArray = snapshot.docs
-        .filter((doc) => doc.id !== currentUser.uid) // Exclude current user
+        .filter((doc) => doc.id !== currentUser.uid)
         .map((doc) => ({
           uid: doc.id,
           ...doc.data(),
@@ -113,7 +112,6 @@ const UsersList = () => {
 
       setUsers(usersArray);
 
-      // Fetch last messages
       const messagesObj = {};
       for (const user of usersArray) {
         const chatId =
@@ -136,33 +134,39 @@ const UsersList = () => {
 
   return (
     <>
-      <div className="overflow-y-auto h-full bg-[#111b21] border-r border-gray-700 relative pb-20">
-        <h1 className="text-white bg-[#111b21] font-medium text-2xl text-center py-4">
-          Chats
-          <div className="border-b border-gray-500 mx-5 mt-3 opacity-40" />
-        </h1>
+      <div className="h-full bg-[#111b21] border-r border-gray-700 pb-20 relative w-full sm:w-[320px] md:w-[350px]">
+        {/* Header */}
+        <div className="sticky top-0 bg-[#111b21] z-10">
+          <h1 className="text-white text-center font-semibold text-xl py-4 sm:text-2xl">
+            Chats
+          </h1>
+          <div className="border-b border-gray-500 mx-4 opacity-30" />
+        </div>
 
-        {users.map((user, index) => (
-          <div key={user.uid}>
-            <UserCard user={user} lastMessage={lastMessages[user.uid]} />
-            {index < users.length - 1 && (
-              <div className="border-b border-gray-400 mx-5 opacity-50" />
-            )}
-          </div>
-        ))}
+        {/* Chat Users List */}
+        <div className="overflow-y-auto h-[calc(100%-6rem)] px-2">
+          {users.map((user, index) => (
+            <div key={user.uid}>
+              <UserCard user={user} lastMessage={lastMessages[user.uid]} />
+              {index < users.length - 1 && (
+                <div className="border-b border-gray-600 mx-5 opacity-30" />
+              )}
+            </div>
+          ))}
+        </div>
 
-        {/* Profile Avatar at Bottom */}
+        {/* Bottom Avatar */}
         <div className="absolute bottom-4 w-full flex justify-center">
           <img
             src={currentUser.photoURL || "/default-avatar.png"}
             alt="Me"
             onClick={() => setShowPopup(true)}
-            className="w-12 h-12 rounded-full cursor-pointer border-2 border-gray-600 hover:border-white"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full cursor-pointer border-2 border-gray-600 hover:border-white transition"
           />
         </div>
       </div>
 
-      {/* Popup for current user's profile */}
+      {/* Profile Popup */}
       {showPopup && (
         <ProfilePopup user={currentUser} onClose={() => setShowPopup(false)} />
       )}
