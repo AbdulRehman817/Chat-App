@@ -101,7 +101,6 @@ const UsersList = () => {
     if (!currentUser) return;
 
     const q = query(collection(db, "users"));
-
     const unsubscribe = onSnapshot(q, async (snapshot) => {
       const usersArray = snapshot.docs
         .filter((doc) => doc.id !== currentUser.uid)
@@ -134,22 +133,26 @@ const UsersList = () => {
 
   return (
     <>
-      <div className="h-full bg-[#111b21] border-r border-gray-700 pb-20 relative w-full sm:w-[320px] md:w-[350px]">
+      <div
+        className="h-full bg-[#111b21] border-r border-gray-700 
+        w-full sm:w-[320px] md:w-[350px] lg:w-[380px] 
+        flex flex-col relative"
+      >
         {/* Header */}
-        <div className="sticky top-0 bg-[#111b21] z-10">
-          <h1 className="text-white text-center font-semibold text-xl py-4 sm:text-2xl">
+        <div className="sticky top-0 z-10 bg-[#111b21]">
+          <h1 className="text-white text-center font-semibold text-lg sm:text-xl md:text-2xl py-4">
             Chats
           </h1>
           <div className="border-b border-gray-500 mx-4 opacity-30" />
         </div>
 
         {/* Chat Users List */}
-        <div className="overflow-y-auto h-[calc(100%-6rem)] px-2">
+        <div className="flex-1 overflow-y-auto px-1 sm:px-2 pt-2 pb-20">
           {users.map((user, index) => (
             <div key={user.uid}>
               <UserCard user={user} lastMessage={lastMessages[user.uid]} />
               {index < users.length - 1 && (
-                <div className="border-b border-gray-600 mx-5 opacity-30" />
+                <div className="border-b border-gray-600 mx-4 opacity-30" />
               )}
             </div>
           ))}
@@ -161,7 +164,7 @@ const UsersList = () => {
             src={currentUser.photoURL || "/default-avatar.png"}
             alt="Me"
             onClick={() => setShowPopup(true)}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full cursor-pointer border-2 border-gray-600 hover:border-white transition"
+            className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full cursor-pointer border-2 border-gray-600 hover:border-white transition"
           />
         </div>
       </div>

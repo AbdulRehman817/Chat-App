@@ -19,8 +19,6 @@ import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import { useChat } from "../context/ChatContext";
 import TypingIndicator from "../TypingIndicator/TypingIndicator";
-import { rtdb } from "../firebase/firebaseConfig";
-import { ref, onValue } from "firebase/database";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Messages = () => {
@@ -42,21 +40,19 @@ const Messages = () => {
   // Firestore document reference for typing status
   const typingRef = doc(db, "typingStatus", combinedId);
 
-  // Initialize Pusher and subscribe to the channel
-  // Effect for handling Pusher typing events
   useEffect(() => {
     if (!selectedUser) return;
 
     const unsubscribe = onSnapshot(typingRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        // Check if the other user is typing
         setIsTyping(data[selectedUser.uid] === true);
       }
     });
 
-    return () => unsubscribe(); // Cleanup the Firestore listener
-  }, [selectedUser, combinedId]); // Add dependencies
+    return () => unsubscribe();
+  }, [selectedUser, combinedId]);
+
   const handleEmojiSelect = async (emojiData, messageId) => {
     const messageRef = doc(db, "chats", combinedId, "messages", messageId);
     const selectedEmoji = emojiData.emoji;
@@ -64,7 +60,7 @@ const Messages = () => {
       const msgToUpdate = messages.find((m) => m.id === messageId);
       if (msgToUpdate) {
         const newText = (msgToUpdate.text || "") + " " + selectedEmoji;
-        await updateDoc(messageRef, { text: newText });
+        await updateDoc(messageRef, { text: newText, edited: true });
         setShowEmojiPicker(null);
       }
     } catch (err) {
@@ -75,7 +71,7 @@ const Messages = () => {
   const editMessage = async (messageId) => {
     const messageRef = doc(db, "chats", combinedId, "messages", messageId);
     try {
-      await updateDoc(messageRef, { text: editText });
+      await updateDoc(messageRef, { text: editText, edited: true });
       setEditingMessageId(null);
       setEditText("");
     } catch (error) {
@@ -133,7 +129,7 @@ const Messages = () => {
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto px-2 sm:px-4 py-2 bg-[#111b21] text-white relative">
+    <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 bg-[#111b21] text-white relative max-w-full">
       {isTyping && <TypingIndicator />}
       <AnimatePresence initial={false}>
         {messages.map((msg) => {
@@ -143,21 +139,21 @@ const Messages = () => {
               key={msg.id}
               className={`flex ${
                 isSender ? "justify-end" : "justify-start"
-              } mb-3 group relative`}
+              } mb-4 group relative max-w-full`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
               <div
-                className={`max-w-[85%] sm:max-w-[80%] md:max-w-[70%] px-3 py-2 text-sm md:text-base rounded-xl break-words relative ${
+                className={`relative break-words rounded-xl px-4 py-2 shadow-sm max-w-[80%] sm:max-w-[70%] md:max-w-[60%] ${
                   isSender
                     ? "bg-[#005c4b] text-white rounded-br-none"
                     : "bg-[#202c33] text-white rounded-bl-none"
-                } shadow-sm`}
+                }`}
               >
                 {!isSender && msg.displayName && !msg.deleted && (
-                  <div className="text-white font-semibold text-xs mb-1 border-l-2 border-green-500 pl-2">
+                  <div className="text-white font-semibold text-xs mb-1 border-l-2 border-green-500 pl-2 truncate max-w-full">
                     {msg.displayName}
                   </div>
                 )}
@@ -168,6 +164,7 @@ const Messages = () => {
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
                       className="w-full bg-[#2a3942] text-white rounded-lg px-3 py-2 resize-none text-sm sm:text-base"
+                      rows={3}
                     />
                     <div className="flex justify-end gap-2 mt-2">
                       <button
@@ -193,20 +190,24 @@ const Messages = () => {
                       <div className="italic text-gray-300">{msg.text}</div>
                     ) : (
                       <>
-                        {msg.text && <div>{msg.text}</div>}
+                        {msg.text && (
+                          <div className="whitespace-pre-wrap break-word">
+                            {msg.text}
+                          </div>
+                        )}
                         {msg.fileUrl &&
                           (msg.fileType && msg.fileType.startsWith("image/") ? (
                             <img
                               src={msg.fileUrl}
                               alt="sent"
-                              className="rounded-lg mt-2 max-h-64 object-cover"
+                              className="rounded-lg mt-2 max-h-64 w-auto object-cover"
                             />
                           ) : (
                             <a
                               href={msg.fileUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-green-300 underline mt-2 block"
+                              className="text-green-300 underline mt-2 block truncate max-w-full"
                             >
                               📎 Download File
                             </a>
@@ -216,7 +217,7 @@ const Messages = () => {
                   </>
                 )}
 
-                <div className="text-[10px] text-gray-400 mt-1 text-right">
+                <div className="text-[10px] text-gray-400 mt-1 text-right select-none">
                   {msg.createdAt?.toDate().toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -232,6 +233,7 @@ const Messages = () => {
                       );
                     }}
                     className="absolute top-2 right-2 text-gray-400 hover:text-white"
+                    aria-label="Open message options"
                   >
                     <FontAwesomeIcon
                       icon={faEllipsisVertical}
@@ -239,6 +241,7 @@ const Messages = () => {
                     />
                   </button>
                 )}
+
                 <AnimatePresence>
                   {showMenuId === msg.id && (
                     <motion.div
@@ -288,59 +291,42 @@ const Messages = () => {
                           setEditText(msg.text);
                           setShowMenuId(null);
                         }}
-                        className="w-full text-left px-4 py-3 hover:bg-blue-600 text-white"
+                        className="w-full text-left px-4 py-3 hover:bg-yellow-600 text-white"
                       >
-                        ✏️ Edit Message
+                        ✏️ Edit
                       </button>
-                      {msg.edited && (
-                        <p className="text-xs text-gray-400 italic mt-1">
-                          Message was edited
-                        </p>
-                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {showEmojiPicker === msg.id && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.15 }}
+                      className={`absolute ${
+                        isSender ? "bottom-12 right-0" : "bottom-12 left-0"
+                      } z-50`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <EmojiPicker
+                        onEmojiClick={(emojiData) =>
+                          handleEmojiSelect(emojiData, msg.id)
+                        }
+                        theme="dark"
+                        lazyLoadEmojis={true}
+                      />
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-              <AnimatePresence>
-                {showEmojiPicker === msg.id && (
-                  <motion.div
-                    className="absolute top-10 right-12 z-50 bg-[#f0f0f0] border border-gray-300 rounded-lg shadow-sm p-1"
-                    onClick={(e) => e.stopPropagation()}
-                    initial={{
-                      opacity: 0,
-                      scale: 0.9,
-                      originX: "100%",
-                      originY: "0%",
-                    }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.9,
-                      originX: "100%",
-                      originY: "0%",
-                    }}
-                    transition={{ duration: 0.15, ease: "easeOut" }}
-                  >
-                    <EmojiPicker
-                      onEmojiClick={(emojiData) =>
-                        handleEmojiSelect(emojiData, msg.id)
-                      }
-                      emojiStyle="native"
-                      lazyLoadEmojis
-                      theme="light"
-                      searchDisabled
-                      skinTonesDisabled
-                      height={300}
-                      width={280}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </motion.div>
           );
         })}
       </AnimatePresence>
-      <div ref={endRef}></div>
+      <div ref={endRef} />
     </div>
   );
 };
