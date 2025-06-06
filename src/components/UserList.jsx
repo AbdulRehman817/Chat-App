@@ -135,7 +135,7 @@ const UsersList = () => {
     <>
       <div
         className="h-full bg-[#111b21] border-r border-gray-700 
-        w-full sm:w-[320px] md:w-[350px] lg:w-[380px] 
+        w-full 
         flex flex-col relative"
       >
         {/* Header */}

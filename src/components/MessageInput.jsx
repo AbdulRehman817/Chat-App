@@ -26,10 +26,7 @@ const uploadFileToCloudinary = async (file, combinedId) => {
     }
   );
 
-  if (!response.ok) {
-    throw new Error("Cloudinary upload failed");
-  }
-
+  if (!response.ok) throw new Error("Cloudinary upload failed");
   return await response.json();
 };
 
@@ -68,21 +65,13 @@ const MessageInput = () => {
     const value = e.target.value;
     setMessage(value);
 
-    // Set typing true
-    set(typingRef, true);
-
-    // Clear any existing timeout
-    if (typingTimeout.current) clearTimeout(typingTimeout.current);
-
-    // Set timeout to stop typing
-    typingTimeout.current = setTimeout(() => {
+    if (value.trim()) {
+      set(typingRef, true);
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      typingTimeout.current = setTimeout(() => set(typingRef, false), 2000);
+    } else {
       set(typingRef, false);
-    }, 2000);
-
-    // Optional: Stop typing immediately if input cleared
-    if (value.trim() === "") {
-      set(typingRef, false);
-      clearTimeout(typingTimeout.current);
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
     }
   };
 
@@ -118,55 +107,44 @@ const MessageInput = () => {
         { merge: true }
       );
 
+      const messageData = {
+        text: message.trim() || null,
+        uid: currentUser.uid,
+        displayName: currentUser.displayName,
+        photoURL: currentUser.photoURL,
+        createdAt: serverTimestamp(),
+      };
+
       if (selectedFile) {
         const uploadResult = await uploadFileToCloudinary(
           selectedFile,
           combinedId
         );
 
-        await addDoc(collection(db, "chats", combinedId, "messages"), {
-          text: message.trim() || null,
-          fileUrl: uploadResult.secure_url,
-          fileName: selectedFile.name,
-          fileType: selectedFile.type,
-          uid: currentUser.uid,
-          displayName: currentUser.displayName,
-          photoURL: currentUser.photoURL,
-          createdAt: serverTimestamp(),
-        });
-
-        await setDoc(
-          doc(db, "lastMessages", combinedId),
-          {
-            text: message.trim() || null,
-            fileUrl: uploadResult.secure_url,
-            fileType: selectedFile.type,
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
-
-        handleRemovePreview();
-      } else {
-        await addDoc(collection(db, "chats", combinedId, "messages"), {
-          text: message.trim(),
-          uid: currentUser.uid,
-          displayName: currentUser.displayName,
-          photoURL: currentUser.photoURL,
-          createdAt: serverTimestamp(),
-        });
-
-        await setDoc(
-          doc(db, "lastMessages", combinedId),
-          {
-            text: message.trim(),
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
+        messageData.fileUrl = uploadResult.secure_url;
+        messageData.fileName = selectedFile.name;
+        messageData.fileType = selectedFile.type;
       }
 
+      await addDoc(
+        collection(db, "chats", combinedId, "messages"),
+        messageData
+      );
+
+      await setDoc(
+        doc(db, "lastMessages", combinedId),
+        {
+          text: message.trim() || null,
+          fileUrl: messageData.fileUrl || null,
+          fileType: messageData.fileType || null,
+          createdAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+
       setMessage("");
+      setSelectedFile(null);
+      setPreviewUrl(null);
       set(typingRef, false);
     } catch (error) {
       console.error("Send message failed:", error);
@@ -175,7 +153,7 @@ const MessageInput = () => {
 
   return (
     <>
-      {/* Preview */}
+      {/* File Preview */}
       {previewUrl && (
         <div className="flex items-center p-2 bg-[#202c33] border-t border-gray-700">
           <img
@@ -183,10 +161,12 @@ const MessageInput = () => {
             alt="Preview"
             className="h-16 w-16 object-cover rounded-md"
           />
+          <div className="ml-3 text-white text-sm truncate">
+            {selectedFile?.name}
+          </div>
           <button
-            type="button"
             onClick={handleRemovePreview}
-            className="ml-3 text-gray-400 hover:text-white"
+            className="ml-auto text-gray-400 hover:text-white"
             title="Remove"
           >
             <X size={20} />
@@ -194,21 +174,25 @@ const MessageInput = () => {
         </div>
       )}
 
+      {/* Message Input Form */}
       <form
         onSubmit={handleSendMessage}
         className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 bg-[#202c33] border-t border-gray-700 w-full"
       >
-        {/* Attachment Button */}
-        <div className="flex justify-between sm:justify-start items-center gap-2 w-full sm:w-auto">
+        {/* Attachment */}
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => fileInputRef.current.click()}
-            className="text-gray-300 hover:text-white z-10"
+            className="text-gray-300 hover:text-white relative top-[39px] right-[12px] sm:top-0 sm:right-0  
+            md:top-0 md:right-0
+
+            lg:top-0 lg:right-0
+            "
             title="Attach File"
           >
             <Paperclip size={20} />
           </button>
-
           <input
             type="file"
             ref={fileInputRef}
@@ -218,22 +202,56 @@ const MessageInput = () => {
           />
         </div>
 
-        {/* Message Input */}
+        {/* Input + Send */}
         <div className="flex w-full gap-2">
           <input
             type="text"
             value={message}
             onChange={handleTyping}
             placeholder="Type a message"
-            className="w-full py-2 pl-8 pr-12 bg-[#2a3942] text-white rounded-full border border-[#2a3942] focus:outline-none focus:ring-2 focus:ring-green-500 placeholder:text-gray-400 text-sm"
+            className=" relative left-4 py-2 pl-4 pr-10 bg-[#2a3942] text-white rounded-full border focus:outline-none placeholder:text-gray-400 text-sm   w-full 
+    sm:py-2 sm:pl-4 sm:pr-10 
+    sm:relative 
+    sm:left-0
+    sm:bg-[#2a3942] 
+    sm:text-white 
+    sm:rounded-full 
+    sm:border 
+    sm:focus:outline-none 
+    sm:placeholder:text-gray-400 
+    sm:text-sm
+
+    md:py-2 md:pl-4 md:pr-10 
+    md:bg-[#2a3942] 
+    md:text-white 
+    md:rounded-full 
+    md:border 
+    md:focus:outline-none 
+    md:placeholder:text-gray-400 
+    md:text-sm
+    lg:py-2 lg:pl-4 lg:pr-10 
+    lg:bg-[#2a3942] 
+    lg:text-white 
+    lg:rounded-full 
+    lg:border 
+    lg:focus:outline-none 
+    lg:placeholder:text-gray-400 
+    lg:text-sm"
           />
 
-          {/* Send Button */}
           <button
             type="submit"
             disabled={!message.trim() && !selectedFile}
-            className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full disabled:opacity-50"
-            title="Send Message"
+            className="relative text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full disabled:opacity-50 left-3.5 sm:left-0 sm:top-0 sm:relative sm:text-white sm:bg-green-500 sm:hover:bg-green-600 sm:px-4 sm:py-2 sm:rounded-full sm:disabled:opacity-50  
+            
+            
+            
+            md:left-0 md:top-0 md:relative md:text-white md:bg-green-500 md:hover:bg-green-600 md:px-4 md:py-2 md:rounded-full md:disabled:opacity-50
+
+
+            lg:left-0 lg:top-0 lg:relative lg:text-white lg:bg-green-500 lg:hover:bg-green-600 lg:px-4 lg:py-2 lg:rounded-full lg:disabled:opacity-50
+            "
+            title="Send"
           >
             <Send size={16} />
           </button>

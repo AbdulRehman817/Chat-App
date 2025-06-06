@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 import { useChat } from "../context/ChatContext";
-import { LogOut } from "lucide-react";
+import { LogOut, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db, rtdb } from "../firebase/firebaseConfig";
@@ -70,10 +70,10 @@ const ChatHeader = ({ showBackButton = false, onBack }) => {
         {showBackButton && (
           <button
             onClick={onBack}
-            className="md:hidden text-white text-xl font-bold pr-1"
+            className="sm:hidden md:hidden text-white p-1 rounded hover:bg-[#2a3942] transition"
             title="Back"
           >
-            ←
+            <ArrowLeft className="w-5 h-5" />
           </button>
         )}
 
