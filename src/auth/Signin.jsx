@@ -17,6 +17,10 @@ const Signin = () => {
     }
   }, [currentUser, navigate]);
 
+  const Signup = () => {
+    navigate("/Signup");
+  };
+
   const handleSignin = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -104,6 +108,12 @@ const Signin = () => {
           />
           Sign In with Google
         </button>
+        <p className="pt-3 text-center text-sm text-gray-500 dark:text-gray-300 cursor-default ">
+          Don't have an account?{" "}
+          <a onClick={Signup} className="text-blue-600 hover:underline ">
+            Signup
+          </a>
+        </p>
       </div>
     </div>
   );

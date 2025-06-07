@@ -16,6 +16,9 @@ const Signup = () => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
+  const Signin = () => {
+    navigate("/Signin");
+  };
   useEffect(() => {
     if (currentUser) {
       navigate("/ChatPage");
@@ -127,6 +130,12 @@ const Signup = () => {
           />
           Sign Up with Google
         </button>
+        <p className="pt-3 text-center text-sm text-gray-500 dark:text-gray-300 cursor-default">
+          Already Signed In?{" "}
+          <a onClick={Signin} className="text-blue-600 hover:underline">
+            Signin
+          </a>
+        </p>
       </div>
     </div>
   );
