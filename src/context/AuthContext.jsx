@@ -45,7 +45,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = (email, password) =>
     signInWithEmailAndPassword(auth, email, password);
-  const logout = () => signOut(auth);
+
+  const logout = async () => {
+    if (currentUser) {
+      const userStatusRef = ref(rtdb, `/status/${currentUser.uid}`);
+      await set(userStatusRef, {
+        state: "offline",
+        lastChanged: Date.now(),
+      });
+    }
+
+    await signOut(auth);
+  };
 
   return (
     <AuthContext.Provider value={{ currentUser, login, logout }}>

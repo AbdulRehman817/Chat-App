@@ -63,7 +63,7 @@ const ChatHeader = ({ showBackButton, onBack }) => {
   if (!userData) return null;
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-b bg-[#202c33] shadow-sm">
+    <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b bg-[#202c33] shadow-sm">
       <div className="flex items-center gap-3">
         {showBackButton && (
           <button
