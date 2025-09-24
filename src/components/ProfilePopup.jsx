@@ -47,7 +47,7 @@ const ProfilePopup = ({ onClose }) => {
     <>
       <div
         className={`fixed top-0 left-0 h-full 
-              w-full sm:w-[263px] md:w-[200px] lg:w-[294px] 
+              w-full sm:w-[300px] md:w-[350px] lg:w-[400px] xl:w-[420px]
               bg-[#1f2c33] z-20 shadow-lg text-white 
               overflow-y-auto transition-transform duration-300 ease-in-out`}
       >
@@ -64,12 +64,12 @@ const ProfilePopup = ({ onClose }) => {
           <img
             src={userData.photoURL || "/default-avatar.png"}
             alt="Profile"
-            className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border-4 border-green-500"
+            className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-green-500"
           />
 
           {/* Name Field */}
           <div className="w-full mt-6 px-4">
-            <label className="text-green-400 text-sm md:text-base mb-1 block">
+            <label className="text-green-400 text-sm sm:text-base mb-1 block">
               Your Name
             </label>
             <div className="flex items-center gap-2">
@@ -78,19 +78,12 @@ const ProfilePopup = ({ onClose }) => {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 disabled={editingField !== "name"}
-                className={`w-full text-base md:text-xl bg-transparent border-b ${
+                className={`w-full text-base sm:text-lg md:text-xl bg-transparent border-b ${
                   editingField === "name"
                     ? "border-[#00a884]"
                     : "border-gray-600"
                 } text-white outline-none py-1`}
               />
-              {showToast && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-                  <div className="bg-green-500 text-white px-4 py-2 rounded shadow-md">
-                    Profile updated successfully!
-                  </div>
-                </div>
-              )}
               {editingField === "name" ? (
                 <FaCheck
                   className="text-green-500 cursor-pointer"
@@ -107,7 +100,7 @@ const ProfilePopup = ({ onClose }) => {
 
           {/* About Field */}
           <div className="w-full mt-6 px-4">
-            <label className="text-green-400 text-sm md:text-base mb-1 block">
+            <label className="text-green-400 text-sm sm:text-base mb-1 block">
               About
             </label>
             <div className="flex items-center gap-2">
@@ -116,7 +109,7 @@ const ProfilePopup = ({ onClose }) => {
                 value={aboutInput}
                 onChange={(e) => setAboutInput(e.target.value)}
                 disabled={editingField !== "about"}
-                className={`w-full text-base md:text-xl bg-transparent border-b ${
+                className={`w-full text-base sm:text-lg md:text-xl bg-transparent border-b ${
                   editingField === "about"
                     ? "border-[#00a884]"
                     : "border-gray-600"
