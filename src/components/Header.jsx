@@ -68,12 +68,13 @@ const ChatHeader = ({ showBackButton, onBack }) => {
         {showBackButton && (
           <button
             onClick={onBack}
-            className="sm:inline md:hidden text-white p-1 rounded hover:bg-[#2a3942] transition"
+            className="block md:hidden text-white p-1 rounded hover:bg-[#2a3942] transition"
             title="Back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
         )}
+
         <img
           src={userData.photoURL || "/default-avatar.png"}
           alt="User"

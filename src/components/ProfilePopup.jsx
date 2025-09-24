@@ -45,7 +45,12 @@ const ProfilePopup = ({ onClose }) => {
 
   return (
     <>
-      <div className="fixed top-0 left-0 h-full w-full sm:w-[350px] md:w-[400px] bg-[#1f2c33] z-20 shadow-lg text-white overflow-y-auto">
+      <div
+        className={`fixed top-0 left-0 h-full 
+              w-full sm:w-[350px] lg:w-[400px] 
+              bg-[#1f2c33] z-20 shadow-lg text-white 
+              overflow-y-auto transition-transform duration-300 ease-in-out`}
+      >
         <div className="flex flex-col items-center p-6 relative">
           {/* Close Button */}
           <button
