@@ -10,9 +10,13 @@ const ProfilePopup = ({ onClose }) => {
   const [editingField, setEditingField] = useState(null);
   const [nameInput, setNameInput] = useState("");
   const [aboutInput, setAboutInput] = useState("");
-  const [showToast, setShowToast] = useState(false); // Added toast state
+  const [showToast, setShowToast] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // Animate in when component mounts
+    setIsOpen(true);
+
     const userRef = doc(db, "users", currentUser.uid);
     const unsub = onSnapshot(userRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -35,22 +39,41 @@ const ProfilePopup = ({ onClose }) => {
       });
       setEditingField(null);
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000); // Hide toast after 3 seconds
+      setTimeout(() => setShowToast(false), 3000);
     } catch (error) {
       console.error("Error updating profile:", error);
-      // Optional: you could show an error toast here as well
     }
+  };
+
+  const handleClose = () => {
+    setIsOpen(false); // start slide-out
+    setTimeout(() => {
+      onClose(); // unmount after animation
+    }, 300); // match transition duration
   };
 
   if (!userData) return null;
 
   return (
     <>
-      <div className="fixed top-0 left-0 h-full w-[400px] bg-[#1f2c33] z-20 shadow-lg text-white">
-        <div className="flex flex-col items-center p-6 relative">
+      {/* Overlay */}
+      <div
+        className={`fixed inset-0 bg-black bg-opacity-50 z-10 transition-opacity duration-300 ${
+          isOpen ? "opacity-100" : "opacity-0"
+        }`}
+        onClick={handleClose}
+      ></div>
+
+      {/* Sidebar */}
+      <div
+        className={`fixed top-0 left-0 h-full w-full sm:w-[350px] md:w-[400px] bg-[#1f2c33] z-20 shadow-lg text-white transform transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col items-center p-4 sm:p-6 relative">
           {/* Close Button */}
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 text-xl hover:text-gray-400"
           >
             ✕
@@ -60,12 +83,12 @@ const ProfilePopup = ({ onClose }) => {
           <img
             src={userData.photoURL || "/default-avatar.png"}
             alt="Profile"
-            className="w-48 h-48 rounded-full object-cover border-4 border-green-500"
+            className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-green-500"
           />
 
           {/* Name Field */}
           <div className="w-full mt-6 px-4">
-            <label className="text-green-400 text-base mb-1 block">
+            <label className="text-green-400 text-sm sm:text-base mb-1 block">
               Your Name
             </label>
             <div className="flex items-center gap-2">
@@ -74,7 +97,7 @@ const ProfilePopup = ({ onClose }) => {
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 disabled={editingField !== "name"}
-                className={`w-full text-xl bg-transparent border-b ${
+                className={`w-full text-base sm:text-lg md:text-xl bg-transparent border-b ${
                   editingField === "name"
                     ? "border-[#00a884]"
                     : "border-gray-600"
@@ -103,14 +126,16 @@ const ProfilePopup = ({ onClose }) => {
 
           {/* About Field */}
           <div className="w-full mt-6 px-4">
-            <label className="text-green-400 text-base mb-1 block">About</label>
+            <label className="text-green-400 text-sm sm:text-base mb-1 block">
+              About
+            </label>
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 value={aboutInput}
                 onChange={(e) => setAboutInput(e.target.value)}
                 disabled={editingField !== "about"}
-                className={`w-full text-xl bg-transparent border-b ${
+                className={`w-full text-base sm:text-lg md:text-xl bg-transparent border-b ${
                   editingField === "about"
                     ? "border-[#00a884]"
                     : "border-gray-600"
