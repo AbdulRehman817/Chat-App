@@ -47,7 +47,7 @@ const ProfilePopup = ({ onClose }) => {
     <>
       <div
         className={`fixed top-0 left-0 h-full 
-              w-full sm:w-[350px] lg:w-[400px] 
+              w-full sm:w-[263px] md:w-[200px] lg:w-[294px] 
               bg-[#1f2c33] z-20 shadow-lg text-white 
               overflow-y-auto transition-transform duration-300 ease-in-out`}
       >
