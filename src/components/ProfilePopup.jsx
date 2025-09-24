@@ -66,7 +66,7 @@ const ProfilePopup = ({ onClose }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-full sm:w-[350px] md:w-[400px] bg-[#1f2c33] z-20 shadow-lg text-white transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-full sm:w-[350px] lg:w-[400px] bg-[#1f2c33] z-20 shadow-lg text-white transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
