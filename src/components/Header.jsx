@@ -63,39 +63,46 @@ const ChatHeader = ({ showBackButton, onBack }) => {
   if (!userData) return null;
 
   return (
-    <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 border-b bg-[#202c33] shadow-sm">
-      <div className="flex items-center gap-3">
+    <div className="sticky top-0 z-20 flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b bg-[#202c33] shadow-sm h-[60px] md:h-[70px]">
+      {/* Left Section */}
+      <div className="flex items-center gap-2 md:gap-3">
         {showBackButton && (
           <button
             onClick={onBack}
             className="block md:hidden text-white p-1 rounded hover:bg-[#2a3942] transition"
             title="Back"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         )}
 
         <img
           src={userData.photoURL || "/default-avatar.png"}
           alt="User"
-          className="w-10 h-10 rounded-full"
+          className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full"
         />
         <div>
-          <h2 className="text-[20px] font-semibold text-white">
+          <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold text-white truncate max-w-[150px] sm:max-w-[200px] md:max-w-[300px]">
             {userData.displayName}
           </h2>
           {isOnline ? (
-            <p className="text-xs text-green-500">● Online</p>
+            <p className="text-[10px] sm:text-xs text-green-500">● Online</p>
           ) : (
-            <p className="text-xs text-gray-400">
+            <p className="text-[10px] sm:text-xs text-gray-400">
               ● Offline{" "}
               {lastSeen ? ` - Last seen: ${formatLastSeen(lastSeen)}` : ""}
             </p>
           )}
         </div>
       </div>
-      <button onClick={handleLogout} title="Logout">
-        <LogOut className="text-gray-500 hover:text-red-500 w-5 h-5" />
+
+      {/* Right Section */}
+      <button
+        onClick={handleLogout}
+        title="Logout"
+        className="p-1 rounded hover:bg-[#2a3942] transition"
+      >
+        <LogOut className="text-gray-400 hover:text-red-500 w-4 h-4 sm:w-5 sm:h-5" />
       </button>
     </div>
   );
