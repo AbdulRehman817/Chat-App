@@ -89,12 +89,11 @@ import { collection, query, onSnapshot, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import UserCard from "./UserCard";
-import ProfilePopup from "./ProfilePopup";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [lastMessages, setLastMessages] = useState({});
-  const [showPopup, setShowPopup] = useState(false);
+
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -163,16 +162,12 @@ const UsersList = () => {
           <img
             src={currentUser.photoURL || "/default-avatar.png"}
             alt="Me"
-            onClick={() => setShowPopup(true)}
             className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full cursor-pointer border-2 border-gray-600 hover:border-white transition"
           />
         </div>
       </div>
 
       {/* Profile Popup */}
-      {showPopup && (
-        <ProfilePopup user={currentUser} onClose={() => setShowPopup(false)} />
-      )}
     </>
   );
 };
